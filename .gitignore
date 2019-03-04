@@ -5,5 +5,5 @@ UKT3G1.sln
 env/
 [Oo]bj/
 __pycache__/
-
-Generated\ Files/
+*.pyproj
+*.pyproj.user
