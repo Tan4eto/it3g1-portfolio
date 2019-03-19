@@ -3,8 +3,13 @@
 .idea/
 UKT3G1.sln
 env/
+ukt_venv/
+tests/
 [Oo]bj/
 __pycache__/
 *.pyproj
 *.pyproj.user
 *.pyc
+*.png
+*.js
+*.jpg
