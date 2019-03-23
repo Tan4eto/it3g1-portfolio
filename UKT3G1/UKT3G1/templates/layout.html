@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
@@ -29,7 +29,19 @@
                     <li><a href="{{ url_for('login') }}">Login</a></li>
                     <li><a href="{{ url_for('register') }}">Register</a></li>
                 </ul>
+                {% if user.is_authenticated == True %}
+                <ul class="nav navbar-nav navbar-right">
+                    <p class="navbar-text">You are logged in as: {{ user.username }}</p>
+                </ul>
+                {% else %}
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                </ul>
+                {% endif %}
+
             </div>
+            
         </div>
     </div>
 
