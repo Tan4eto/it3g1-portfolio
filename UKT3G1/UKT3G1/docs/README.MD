@@ -4,3 +4,4 @@
 *   requirements_specification
 *   CHANGELOG
 *   ROADMAP
+*   LICENSE
