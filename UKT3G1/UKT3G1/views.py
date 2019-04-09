@@ -51,12 +51,12 @@ def register():
             result = connection.execute("INSERT INTO user (username, email, password) VALUES (:username, :email, :password)",
                        {"username": form.username.data, "email": form.email.data, "password": hashed_password})
             db.session.commit()
-            return jsonify(msg='User successfully created'), 200
+            #return jsonify(msg='User successfully created'), 200
         except AssertionError as exception_message:
             return jsonify(msg='Error: {}. '.format(exception_message)), 400
 
-        #flash('Your account has been created! You are now able to log in', 'success')
-        return redirect('login.html')
+        flash('Your account has been created! You are now able to log in', 'success')
+        return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form, user=current_user)
 
 
