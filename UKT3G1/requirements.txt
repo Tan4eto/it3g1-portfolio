@@ -18,3 +18,5 @@ pycparser==2.18
 six==1.11.0
 SQLAlchemy==1.2.7
 WTForms==2.1
+pytest== 4.4.0
+jsonify==0.5

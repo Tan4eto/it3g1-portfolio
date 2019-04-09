@@ -4,12 +4,15 @@ Routes and views for the flask application.
 
 from datetime import datetime
 from flask import render_template, url_for, flash, redirect, request
-from UKT3G1 import app, db, bcrypt
+from UKT3G1 import app, bcrypt, db
 from UKT3G1.Forms import RegistrationForm, LoginForm
-from UKT3G1.Models import User, UserTests
-from flask_login import login_user, current_user, logout_user, login_required
-from UKT3G1 import app
+from UKT3G1.Models import User, UserTests, Base
+from flask_login import login_user, current_user, logout_user, login_required, login_manager
+from sqlalchemy import create_engine
+from sqlalchemy.orm import session
+import jsonify
 
+engine = create_engine('sqlite:///test.db', echo=True)
 
 @app.route('/')
 @app.route('/home')
@@ -34,26 +37,40 @@ def about():
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+    
+
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash('Your account has been created! You are now able to log in', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form, user=current_user,)
+        user = User(form.username.data, form.email.data, hashed_password)
+        try:
+            connection = engine.connect()
+
+            result = connection.execute("INSERT INTO user (username, email, password) VALUES (:username, :email, :password)",
+                       {"username": form.username.data, "email": form.email.data, "password": hashed_password})
+            db.session.commit()
+            return jsonify(msg='User successfully created'), 200
+        except AssertionError as exception_message:
+            return jsonify(msg='Error: {}. '.format(exception_message)), 400
+
+        #flash('Your account has been created! You are now able to log in', 'success')
+        return redirect('login.html')
+    return render_template('register.html', title='Register', form=form, user=current_user)
 
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        # connection = engine.connect()
+        user = session.query(User).filter(email="email")
+        session.query(user.exists())
+        # user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
