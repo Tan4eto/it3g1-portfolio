@@ -42,7 +42,7 @@ class User(Base, UserMixin):
     def __repr__(self):
         return "User('{self.username}', '{self.email}', '{self.image_file}')"
 
-    def __init__(self, username, email, password):
+    def __init__(self, username=None, email=None, password=None):
         self.username = username
         self.email = email
         self.password = password
