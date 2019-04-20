@@ -9,11 +9,15 @@ from UKT3G1.Forms import RegistrationForm, LoginForm
 from UKT3G1.Models import User, UserTests, Base
 from flask_login import login_user, current_user, logout_user, login_required, login_manager
 from sqlalchemy import create_engine
-from sqlalchemy.orm import session
+from sqlalchemy.orm import sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
 import jsonify
 
 engine = create_engine('sqlite:///test.db', echo=True)
+connection = engine.connect()
+Session = sessionmaker()
+Session.configure(bind=engine)
+session = Session()
 
 @app.route('/')
 @app.route('/home')
@@ -67,15 +71,16 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User(email=form.email.data, password=form.password.data)
-        connection = engine.connect()
-        result = connection.execute("SELECT email, password FROM user WHERE email = ? AND password = ?", form.email.data, form.password.data)
-        db.session.commit()
-        # user = User.query.filter_by(email=form.email.data).first()
-        if user and check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
+                
+        userDB = session.query(User).filter(User.email == user.email).one()
+        
+        if user and check_password_hash(userDB.password, user.password):
+            print("Login success")
+            login_user(userDB, remember=form.remember.data)
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
+            print("Login error")
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form, user=current_user)
 
