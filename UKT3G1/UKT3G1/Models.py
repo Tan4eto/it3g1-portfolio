@@ -55,10 +55,11 @@ class UserTests(Base):
     title = Column(String(100), nullable=False)
     date_posted = Column(types.DateTime, nullable=False, default=datetime.utcnow)
     content = Column(types.Text, nullable=False)
+    post_type = Column(types.Text, nullable=False)
     user_id = Column(types.Integer, ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
-        return "UserTests('{self.title}', '{self.date_posted}')"
+        return "UserTests('{self.title}', '{self.date_posted}','{self.content}', '{self.user_id}', '{self.post_type}')"
 
 
 # create tables

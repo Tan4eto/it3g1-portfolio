@@ -5,7 +5,7 @@ Routes and views for the flask application.
 from datetime import datetime
 from flask import render_template, url_for, flash, redirect, request
 from UKT3G1 import app, db
-from UKT3G1.Forms import RegistrationForm, LoginForm
+from UKT3G1.Forms import RegistrationForm, LoginForm, UserTest
 from UKT3G1.Models import User, UserTests, Base
 from flask_login import login_user, current_user, logout_user, login_required, login_manager
 from sqlalchemy import create_engine
@@ -71,14 +71,14 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User(email=form.email.data, password=form.password.data)
-                
+
         userDB = session.query(User).filter(User.email == user.email).one()
-        
+
         if user and check_password_hash(userDB.password, user.password):
             print("Login success")
             login_user(userDB, remember=form.remember.data)
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('home'))
+            return redirect(next_page) if next_page else redirect(url_for('create_post'))
         else:
             print("Login error")
             flash('Login Unsuccessful. Please check email and password', 'danger')
@@ -89,3 +89,28 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+
+
+@app.route("/post/new", methods=['GET', 'POST'])
+@login_required
+def create_post():
+    form = UserTest()
+    if form.validate_on_submit():
+        conn = engine.connect()
+        if request.method == 'POST' and form.validate():
+            posts = conn.execute("INSERT INTO usertests (title, date_posted, content, post_type) VALUES (:title, :date_posted, :content, :post_type)",
+                {"title": form.title.data, "date_posted": form.date_posted.data, "content": form.content.data,
+                 "post_type": form.post_type.data})
+            session.commit()
+        flash('Your post has been created!', 'success')
+        return redirect(url_for('home'))
+    return render_template('posts.html', title='New Post',
+                           form=form, legend='New Post')
+
+
+@app.route("/post/<int:post_id>")
+def post(post_id):
+    post = UserTest.query.get_or_404(post_id)
+    return render_template('post.html', title=post.title, post=post)
+

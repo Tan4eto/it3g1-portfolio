@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, DateTimeField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from sqlalchemy.orm import validates
 from UKT3G1.Models import User
@@ -50,3 +50,14 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
+
+
+class UserTest(FlaskForm):
+    post_types = [('Test', 'Test'),
+                   ('Fixed an issue', 'Fixed an issue'),
+                   ('Enhanced part of the code', 'Enhanced part of the code')]
+    title = StringField('Title')
+    date_posted = DateTimeField('Created on')
+    user_id = StringField('Author')
+    content = SelectField('Content')
+    post_type = SelectField('Media', choices=post_types)
