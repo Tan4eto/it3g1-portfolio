@@ -4,8 +4,7 @@ Routes and views for the flask application.
 import os
 import secrets
 from datetime import datetime
-from flask import render_template, url_for, flash, redirect, request, abort
-from flask import session as sess
+from flask import render_template, url_for, flash, redirect, request, abort, session
 from UKT3G1 import app, db
 from UKT3G1.forms import RegistrationForm, LoginForm, UserTest, UpdateAccountForm, ResetPasswordForm, RequestResetForm
 from UKT3G1.models import User, UserTests, Base
@@ -73,17 +72,18 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     form = LoginForm()
-    if request.method == 'POST':
-        # email = request.form['email']
-        sess['email'] = request.form['email']
-        print(type(request.form), "*"*50)
-        if form.validate_on_submit():
-            userDB = session.query(User).filter_by(email=form.email.data).first()
-            if userDB and check_password_hash(userDB.password, form.password.data):
-                login_user(userDB, remember=form.remember.data, force=True)
-                flash('Thanks for logging in, {}'.format(current_user.email))
-                return redirect(url_for('home'))
-    return render_template('login.html', title='Login', form=form, user=current_user)
+    if form.validate_on_submit():
+        userDB = session.query(User).filter_by(email=form.email.data).first()
+        if userDB and check_password_hash(userDB.password, form.password.data):
+            # userDB.authenticated = True
+            # session.add(userDB)
+            # session.commit()
+            login_user(userDB)
+            flash('Thanks for logging in, {}'.format(current_user.email))
+            return redirect(url_for('create_post'))
+        else:
+            flash('Login Unsuccessful. Please check email and password', 'danger')
+    return render_template('login.html', title='Login', form=form, id=current_user)
 
 
 @app.route("/logout")
@@ -122,26 +122,22 @@ def account():
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.email.data = current_user.email
-    # image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
+    image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     return render_template('account.html', title='Account', form=form)
 
 
-@app.route("/post/new", methods=['GET', 'POST'])
+@app.route("/new_post", methods=['GET', 'POST'])
 @login_required
 def create_post():
     form = UserTest()
+
     if form.validate_on_submit():
-        # post = UserTests(form.title.data, form.content.data, form.post_type.data)
-        post = UserTests()
-        post.user_id = current_user.id
-        post.title = form.title.data
-        post.post_type = form.post_type.data
-        post.content = form.content.data
+        post = UserTests(form.title.data, form.content.data, form.post_type.data, current_user.id)
         session.add(post)
         session.commit()
         print(post)
         flash('Your post has been created!', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('post'))
     return render_template('new_post.html', title='New Post',
                            form=form)
 
@@ -152,7 +148,7 @@ def post(post_id):
     return render_template('posts.html', title=post.title, post=post)
 
 
-@app.route("/post/update", methods=['GET', 'POST'])
+@app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
 @login_required
 def update_post(post_id):
     post = UserTest.query.get_or_404(post_id)
@@ -172,8 +168,7 @@ def update_post(post_id):
                            form=form, legend='Update Post')
 
 
-# @app.route("/post/<int:post_id>/delete", methods=['POST'])
-@app.route("/post/delete", methods=['POST'])
+@app.route("/post/<int:post_id>/delete", methods=['POST'])
 @login_required
 def delete_post(post_id):
     post = UserTest.query.get_or_404(post_id)
@@ -185,13 +180,11 @@ def delete_post(post_id):
     return redirect(url_for('home'))
 
 
-# @app.route("/user/<string:username>")
-@app.route("/user/")
-@login_required
+@app.route("/user/<string:username>")
 def user_posts(username):
     page = request.args.get('page', 1, type=int)
-    user = session.query(User).filter_by(username=username).first_or_404()
-    posts = session.query(UserTests).filter_by(author=user)\
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = UserTests.query.filter_by(author=user)\
         .order_by(UserTests.date_posted.desc())\
         .paginate(page=page, per_page=5)
     return render_template('user_posts.html', posts=posts, user=user)

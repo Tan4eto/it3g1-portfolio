@@ -4,20 +4,26 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine, types
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy as db
+from UKT3G1 import app, login_manager
 
 
-engine = create_engine('sqlite:///test.db', echo=True)
+
+engine = create_engine('sqlite:///test2.db', echo=True)
 Base = declarative_base()
+
+@login_manager.user_loader
+def load_user(user_id):
+    return session.query(User).get(user_id)
 
 
 class User(Base, UserMixin):
     __tablename__ = 'user'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(20), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
-    #image_file = Column(String(20), nullable=True, default='default.jpg')
+    image_file = Column(String(20), nullable=True, default='default.jpg')
     password = Column(String(60), nullable=False)
     user_tests = relationship('UserTests', backref='user', lazy=True)
 
@@ -26,6 +32,19 @@ class User(Base, UserMixin):
     #
     # def check_password(self, password):
     #     return check_password_hash(self.password_hash, password)
+
+    def get_reset_token(self, expires_sec=1800):
+        s = Serializer(app.config['SECRET_KEY'], expires_sec)
+        return s.dumps({'user_id': self.id}).decode('utf-8')
+
+    @staticmethod
+    def verify_reset_token(token):
+        s = Serializer(app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token)['user_id']
+        except:
+            return None
+        return User.query.get(user_id)
 
     def is_active(self):
         """True, as all users are active."""
@@ -51,7 +70,7 @@ class User(Base, UserMixin):
 
 class UserTests(Base):
     __tablename__ = 'usertests'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(100), nullable=False)
     date_posted = Column(types.DateTime, nullable=False, default=datetime.utcnow)
     content = Column(types.Text, nullable=False)
