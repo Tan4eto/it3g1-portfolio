@@ -5,6 +5,8 @@ UKT3G1.sln
 env/
 ukt_venv/
 [Oo]bj/
+tests/
+test/
 __pycache__/
 *.pyproj
 *.pyproj.user
@@ -14,3 +16,4 @@ __pycache__/
 *.jpg
 /UKT3G1/UKT3G1/test.db
 test.db
+test2.db
