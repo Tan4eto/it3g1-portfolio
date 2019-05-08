@@ -185,15 +185,17 @@ def delete_post(post_id):
     return redirect(url_for('home'))
 
 
-# @app.route("/user/<string:username>")
-@app.route("/user/")
+@app.route("/user/<username>")
+#@app.route("/user/")
 @login_required
 def user_posts(username):
+
     page = request.args.get('page', 1, type=int)
-    user = session.query(User).filter_by(username=username).first_or_404()
-    posts = session.query(UserTests).filter_by(author=user)\
+    user = session.query(User).filter_by(username=username).first()
+    username = session.query(User).filter_by(username=username).first()
+    posts = session.query(UserTests).filter_by(user_id = id)\
         .order_by(UserTests.date_posted.desc())\
-        .paginate(page=page, per_page=5)
+#        .paginate(page=page, per_page=5)
     return render_template('user_posts.html', posts=posts, user=user)
 
 
