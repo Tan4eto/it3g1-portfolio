@@ -2,16 +2,16 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1 class="mb-3">Posts by {{ user.username }} ({{ total }})</h1>
-    {% for post in posts.items %}
+    {% for post in posts %}
         <article class="media content-section">
-          <!--<img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + post.user.image_file) }}">-->
+          
           <div class="media-body">
             <div class="article-metadata">
               <a class="mr-2" href="{{ url_for('user_posts', username=user.username)}}">{{ post.user_id }}</a>
-              <small class="text-muted">{{ form.date_posted }}</small>
+              <small class="text-muted">{{ post.date_posted }}</small>
             </div>
-            <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ title }}</a></h2>
-            <p class="article-content">{{ content }}</p>
+            <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
+            <p class="article-content">{{ post.content }}</p>
           </div>
         </article>
     {% endfor %}

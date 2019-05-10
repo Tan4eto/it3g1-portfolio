@@ -78,12 +78,13 @@ def login():
         sess['email'] = request.form['email']
         print(type(request.form), "*"*50)
         if form.validate_on_submit():
-            userDB = session.query(User).filter_by(email=form.email.data).first()
+            user = User(email=form.email.data, password=form.password.data)
+            userDB = session.query(User).filter(User.email == user.email).one()
             if userDB and check_password_hash(userDB.password, form.password.data):
                 login_user(userDB, remember=form.remember.data, force=True)
                 flash('Thanks for logging in, {}'.format(current_user.email))
                 return redirect(url_for('home'))
-    return render_template('login.html', title='Login', form=form, user=current_user)
+    return render_template('login.html', title='Login', form=form, userDB=current_user)
 
 
 @app.route("/logout")
@@ -148,14 +149,14 @@ def create_post():
 
 @app.route("/post/<int:post_id>")
 def post(post_id):
-    post = UserTest.query.get_or_404(post_id)
+    post = session.query(UserTests).filter(UserTests.id == post_id).one()
     return render_template('posts.html', title=post.title, post=post)
 
 
 @app.route("/post/update", methods=['GET', 'POST'])
 @login_required
 def update_post(post_id):
-    post = UserTest.query.get_or_404(post_id)
+    post = session.query(UserTests).filter(UserTests.id == post_id).one()
     if post.user_id != current_user:
         abort(403)
     form = UserTest()
@@ -168,7 +169,7 @@ def update_post(post_id):
     elif request.method == 'GET':
         form.title.data = post.title
         form.content.data = post.content
-    return render_template('create_post.html', title='Update Post',
+    return render_template('new_post.html', title='Update Post',
                            form=form, legend='Update Post')
 
 
@@ -191,12 +192,14 @@ def delete_post(post_id):
 def user_posts(username):
 
     page = request.args.get('page', 1, type=int)
-    user = session.query(User).filter_by(username=username).first()
-    username = session.query(User).filter_by(username=username).first()
-    posts = session.query(UserTests).filter_by(user_id = id)\
-        .order_by(UserTests.date_posted.desc())\
+
+    userDB = session.query(User).filter(User.email == current_user.email).one()
+    posts = session.query(UserTests).filter(UserTests.user_id == userDB.id).all()
+       
 #        .paginate(page=page, per_page=5)
-    return render_template('user_posts.html', posts=posts, user=user)
+    for x in posts:
+        print(x.title)
+    return render_template('user_posts.html', posts=posts, user=userDB)
 
 
 def send_reset_email(user):
