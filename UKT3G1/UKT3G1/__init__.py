@@ -13,6 +13,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'development key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test2.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 manager = Manager(app)
