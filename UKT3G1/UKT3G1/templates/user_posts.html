@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1 class="mb-3">Posts by {{ user.username }} ({{ pagination.total }})</h1>
+    {{ pagination.info }}
+    {{ pagination.links }}
     {% for post in posts %}
         <article class="media content-section">
 
@@ -13,19 +15,6 @@
             <p class="article-content">{{ post.content }}</p>
           </div>
         </article>
-    {% endfor %}
-    {{ pagination.info }}
-    {{ pagination.links }}
-    {% for post in posts %}
-      {% if page_num %}
-        {% if post.page == page_num %}
-          <a class="btn btn-info mb-4" href="{{ url_for('user_posts', username=user.username, page=page_num) }}">{{ page_num }}</a>
-        {% else %}
-          <a class="btn btn-outline-info mb-4" href="{{ url_for('user_posts', username=user.username, page=page_num) }}">{{ page_num }}</a>
-        {% endif %}
-      {% else %}
-        ...
-      {% endif %}
     {% endfor %}
     {{ pagination.links }}
 {% endblock %}

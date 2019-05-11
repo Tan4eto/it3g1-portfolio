@@ -138,7 +138,6 @@ def create_post():
         post.user_id = current_user.username
         session.add(post)
         session.commit()
-        print(post)
         flash('Your post has been created!', 'success')
         return redirect(url_for('user_posts', username=current_user.username))
     return render_template('new_post.html', title='New Post',
@@ -154,7 +153,7 @@ def post(post_id):
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
 @login_required
 def update_post(post_id):
-    post = session.query(UserTests).get(post_id)
+    post = session.query(UserTests).get(UserTests.id == post_id)
     if post.user != current_user:
         abort(403)
     form = UserTest()
@@ -187,9 +186,8 @@ def delete_post(post_id):
 def user_posts(username):
     page = request.args.get(get_page_parameter(), type=int, default=1)
     users = session.query(User).filter(User.username == current_user.username).first()
-    posts = session.query(UserTests).filter(UserTests.user_id == users.id).order_by(UserTests.date_posted.desc()).all()
-    pagination = Pagination(page=page, total=session.query(UserTests.id).count(), record_name='posts', per_page=5)
-    print(posts)
+    posts = session.query(UserTests).filter(UserTests.id).order_by(UserTests.date_posted.desc()).all()
+    pagination = Pagination(page=page, total=session.query(UserTests).count(), record_name='posts', per_page=1)
     return render_template('user_posts.html', posts=posts, user=users, pagination=pagination)
 
 
