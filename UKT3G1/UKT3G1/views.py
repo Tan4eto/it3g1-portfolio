@@ -149,15 +149,15 @@ def create_post():
 
 @app.route("/post/<int:post_id>")
 def post(post_id):
-    post = session.query(UserTests).filter(UserTests.id == post_id).one()
-    return render_template('posts.html', title=post.title, post=post)
+    current_post = session.query(UserTests).filter(UserTests.id == post_id).one()
+    return render_template('posts.html', title=current_post.title, post=current_post)
 
 
-@app.route("/post/update", methods=['GET', 'POST'])
+@app.route("/post/update/<int:post_id>", methods=['GET', 'POST'])
 @login_required
 def update_post(post_id):
     post = session.query(UserTests).filter(UserTests.id == post_id).one()
-    if post.user_id != current_user:
+    if post.user_id != current_user.id:
         abort(403)
     form = UserTest()
     if form.validate_on_submit():
@@ -174,11 +174,11 @@ def update_post(post_id):
 
 
 # @app.route("/post/<int:post_id>/delete", methods=['POST'])
-@app.route("/post/delete", methods=['POST'])
+@app.route("/post/delete/<int:post_id>", methods=['GET', 'POST'])
 @login_required
 def delete_post(post_id):
-    post = UserTest.query.get_or_404(post_id)
-    if post.author != current_user:
+    post = session.query(UserTests).filter(UserTests.id == post_id).one()
+    if post.user_id != current_user.id:
         abort(403)
     session.delete(post)
     session.commit()
@@ -197,8 +197,7 @@ def user_posts(username):
     posts = session.query(UserTests).filter(UserTests.user_id == userDB.id).all()
        
 #        .paginate(page=page, per_page=5)
-    for x in posts:
-        print(x.title)
+    
     return render_template('user_posts.html', posts=posts, user=userDB)
 
 
