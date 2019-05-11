@@ -17,3 +17,4 @@ __pycache__/
 /UKT3G1/UKT3G1/test.db
 test.db
 test2.db
+db.py
