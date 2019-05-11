@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, types
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
 from UKT3G1 import app, login_manager
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 
 
@@ -21,7 +22,7 @@ class User(Base, UserMixin):
     email = Column(String(120), unique=True, nullable=False)
     image_file = Column(String(20), nullable=True, default='default.jpg')
     password = Column(String(60), nullable=False)
-    user_tests = relationship('UserTests', backref='user', lazy=True)
+    user_tests = relationship('UserTests', backref='user', lazy='joined')
 
     # def set_password(self, password):
     #     self.password_hash = generate_password_hash(password)
@@ -36,7 +37,6 @@ class User(Base, UserMixin):
         self.authenticated = True
         self.id = id
 
-
     def get_reset_token(self, expires_sec=1800):
         s = Serializer(app.config['SECRET_KEY'], expires_sec)
         return s.dumps({'user_id': self.id}).decode('utf-8')
@@ -49,6 +49,10 @@ class User(Base, UserMixin):
         except:
             return None
         return User.query.get(user_id)
+
+    # @hybrid_method
+    # def count(self):
+    #     return True
 
     def is_active(self):
         """True, as all users are active."""
@@ -63,8 +67,7 @@ class User(Base, UserMixin):
         return self.authenticated
 
     def __repr__(self):
-        return "User('{self.username}', '{self.email}', '{self.image_file}')"
-
+        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
 
 @login_manager.user_loader
@@ -82,7 +85,7 @@ class UserTests(Base):
     user_id = Column(types.Integer, ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
-        return "UserTests('{self.title}', '{self.date_posted}','{self.content}', '{self.user_id}', '{self.post_type}')"
+        return f"UserTests('{self.title}', '{self.date_posted}','{self.content}', '{self.user_id}', '{self.post_type}')"
 
 
 # create tables

@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
+<h1> Create a new post </h1>
 <div class="content-section">
     <form method="POST" action="{{ url_for('create_post')}}">
         {{ form.hidden_tag() }}
