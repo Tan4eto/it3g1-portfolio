@@ -16,6 +16,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jsonify
 from flask_mail import Message
 from PIL import Image
+from flask_paginate import Pagination, get_page_parameter
 
 engine = create_engine('sqlite:///test2.db', echo=True)
 connection = engine.connect()
@@ -150,7 +151,6 @@ def create_post():
 
 @app.route("/post/<int:post_id>")
 def post(post_id):
-    post = session.query(UserTests).get(post_id)
     post = session.query(UserTests).filter(UserTests.id == post_id).one()
     return render_template('posts.html', title=post.title, post=post)
 
@@ -160,7 +160,7 @@ def post(post_id):
 def update_post(post_id):
     post = session.query(UserTests).get(post_id)
     if post.user != current_user:
-    post = session.query(UserTests).filter(UserTests.id == post_id).one()
+        post = session.query(UserTests).filter(UserTests.id == post_id).one()
     if post.user_id != current_user:
         abort(403)
     form = UserTest()
@@ -192,15 +192,14 @@ def delete_post(post_id):
 @app.route("/user/<string:username>")
 def user_posts(username):
 
-    page = request.args.get('page', 1, type=int)
-
-    userDB = session.query(User).filter(User.email == current_user.email).one()
-    posts = session.query(UserTests).filter(UserTests.user_id == userDB.id).all()
-
-#        .paginate(page=page, per_page=5)
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    users = session.query(User).filter(User.email == current_user.email).one()
+    posts = session.query(UserTests).filter(UserTests.user_id == users.id).all()
+    pagination = Pagination(page=page, total=session.query(User.id).count(), record_name='posts')
     for x in posts:
         print(x.title)
-    return render_template('user_posts.html', posts=posts, user=userDB)
+
+    return render_template('user_posts.html', posts=posts, user=users, total=pagination.total, pagination=pagination)
 
 
 def send_reset_email(user):
