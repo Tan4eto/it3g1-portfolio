@@ -5,8 +5,10 @@ UKT3G1.sln
 env/
 ukt_venv/
 [Oo]bj/
-tests/
 test/
+/UKT3G1/build/
+/UKT3G1/dist/
+/UKT3G1/UKT3G1.egg-info/
 __pycache__/
 *.pyproj
 *.pyproj.user
