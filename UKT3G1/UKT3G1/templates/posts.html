@@ -1,12 +1,12 @@
 {% extends "layout.html" %}
 {% block content %}
   <article class="media content-section">
-    <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + post.user.image_file) }}">
+
     <div class="media-body">
       <div class="article-metadata">
-        <a class="mr-2" href="#">{{ post.email }}</a>
+        <a class="mr-2" href="{{ url_for('user_posts', username=post.user.username) }}">{{ post.user.username }}</a>
         <small class="text-muted">{{ post.date_posted }}</small>
-        {% if post.user_id == current_user.id %}
+        {% if post.user == current_user.posts %}
           <div>
             <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
             <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>

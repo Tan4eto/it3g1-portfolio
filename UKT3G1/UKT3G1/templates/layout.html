@@ -20,7 +20,7 @@
                 </button>
                 <!--<a href="/" class="navbar-brand">IT3G1 Machines</a>-->
             </div>
-            <div class="collapse navbar-collapse ">
+            <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a href="{{ url_for('home') }}">Home</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
@@ -30,7 +30,7 @@
                     <ul class="nav navbar-nav navbar-right">
                     <p class="navbar-text hidden">You are logged in as: {{ current_user.username }}</p>
                     <li><a href="{{ url_for('logout') }}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-                </ul>
+                    </ul>
                 {% else %}
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="{{ url_for('login') }}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
@@ -44,17 +44,13 @@
         </div>
     </div>
 
-
     <div class="container body-content">
         {% block content %}{% endblock %}
         <hr />
         <footer>
-            <p>&copy; {{ year }} - IT3G1 Machines Portfolio - {{ current_user.username }}</p>
+            <p>&copy; {{ year }} - IT3G1 Portfolio - {{ current_user.username }}</p>
         </footer>
     </div>
-
-
     {% block scripts %}{% endblock %}
-
 </body>
 </html>
