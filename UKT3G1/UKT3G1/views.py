@@ -16,7 +16,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jsonify
 from flask_mail import Message
 from PIL import Image
-from flask_paginate import Pagination, get_page_parameter
+from flask_paginate import Pagination, get_page_parameter,get_page_args
 
 engine = create_engine('sqlite:///test2.db', echo=True)
 connection = engine.connect()
@@ -135,7 +135,7 @@ def create_post():
         post.title = form.title.data
         post.post_type = form.post_type.data
         post.content = form.content.data
-        post.user_id = current_user.username
+        post.user_id = current_user.id
         session.add(post)
         session.commit()
         flash('Your post has been created!', 'success')
@@ -153,14 +153,15 @@ def post(post_id):
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
 @login_required
 def update_post(post_id):
-    post = session.query(UserTests).get(UserTests.id == post_id)
+    post = session.query(UserTests).filter(UserTests.id == post_id).one()
     if post.user != current_user:
         abort(403)
     form = UserTest()
     if form.validate_on_submit():
         post.title = form.title.data
         post.content = form.content.data
-        db.session.commit()
+        session.update(post)
+        session.commit()
         flash('Your post has been updated!', 'success')
         return redirect(url_for('post', post_id=post.id))
     elif request.method == 'GET':
@@ -173,7 +174,7 @@ def update_post(post_id):
 @app.route("/post/<int:post_id>/delete", methods=['POST'])
 @login_required
 def delete_post(post_id):
-    post = session.query(UserTests).get(post_id)
+    post = session.query(UserTests).filter(UserTests.id == post_id).one()
     if post.user != current_user:
         abort(403)
     db.session.delete(post)
@@ -184,11 +185,18 @@ def delete_post(post_id):
 
 @app.route("/user/<string:username>")
 def user_posts(username):
+    # get_page_arg defaults to page 1, per_page of 10
+    # page, per_page, offset = get_page_args()
     page = request.args.get(get_page_parameter(), type=int, default=1)
-    users = session.query(User).filter(User.username == current_user.username).first()
-    posts = session.query(UserTests).filter(UserTests.id).order_by(UserTests.date_posted.desc()).all()
-    pagination = Pagination(page=page, total=session.query(UserTests).count(), record_name='posts', per_page=1)
-    return render_template('user_posts.html', posts=posts, user=users, pagination=pagination)
+    userDB = session.query(User).filter(User.email == current_user.email).one()
+    posts = session.query(UserTests).filter(UserTests.user_id == userDB.id).all()
+    pagination = Pagination(page=page, total=session.query(UserTests).filter(UserTests.user_id == userDB.id).count(),
+                                record_name='posts', css_framework='bootstrap3')
+
+    return render_template('user_posts.html', posts=posts, user=userDB, pagination=pagination)
+
+
+
 
 
 def send_reset_email(user):

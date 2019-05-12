@@ -9,7 +9,7 @@
           <div class="media-body">
             <div class="article-metadata">
               <a class="mr-2" href="{{ url_for('user_posts', username=post.user.username) }}">{{ post.user.username }}</a>
-              <small class="text-muted">{{ post.date_posted }}</small>
+              <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d-%H-%M') }}</small>
             </div>
             <p class="h2" ><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></p>
             <p class="article-content">{{ post.content }}</p>
