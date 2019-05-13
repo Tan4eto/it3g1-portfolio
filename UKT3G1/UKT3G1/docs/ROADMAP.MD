@@ -2,14 +2,14 @@
 
 ## Initial proposed features   
 ### Stage 1
-* [V] Basic app skeleton
-* [R] Database functionality via ORM
-* [R] Documentation 
+* [x] Basic app skeleton
+* [x] Database functionality via ORM
+* [x] Documentation 
 
 ### Stage 2
-* [V] Login functionality
-* [V] Posting functionality
-* [R] CRUD
+* [x] Login functionality
+* [x] Posting functionality
+* [ ] CRUD
 
 ### Stage 3
 * [ ] Beautify interface
