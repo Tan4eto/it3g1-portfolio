@@ -5,19 +5,20 @@
       <div class="article-metadata">
         <a class="mr-2" href="{{ url_for('user_posts', username=post.user.username) }}">{{ post.user.username }}</a>
         <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d-%H-%M') }}</small>
-        {% if post.user == current_user %}
           <div>
-            <a class="btn btn-default" href="{{ url_for('update_post', post_id=post.id) }}">Update &raquo;</a>
-            <a class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete &raquo;</a>
+              <h2 class="article-title">{{ post.title }}</h2>
+              <p class="article-content">{{ post.content }}</p>
+
           </div>
-        {% endif %}
+    {% if post.user == current_user %}
       </div>
-      <h2 class="article-title">{{ post.title }}</h2>
-      <p class="article-content">{{ post.content }}</p>
-    </div>
+        <a class="btn btn-default" href="{{ url_for('update_post', post_id=post.id) }}">Update &raquo;</a>
+        <a type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Delete &raquo;</a>
+     </div>
+    {% endif %}
   </article>
   <!-- Modal -->
-  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">

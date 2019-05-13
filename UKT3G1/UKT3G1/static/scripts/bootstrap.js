@@ -2013,11 +2013,3 @@ if (!jQuery) { throw new Error("Bootstrap requires jQuery") }
 
 }(window.jQuery);
 
-+function show_logged_user($) {
-
-    $('#elm').hover(
-        function(){ $(this).removeClass('hover') }
-    )
-    $('#elm').hover(
-        function(){ $(this).removeClass('hover') }
-    )

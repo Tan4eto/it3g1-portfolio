@@ -59,7 +59,8 @@ def register():
 
             result = connection.execute("INSERT INTO user (username, email, password) VALUES (:username, :email, :password)",
                        {"username": form.username.data, "email": form.email.data, "password": hashed_password})
-            db.session.commit()
+            session.commit()
+            session.close()
             # return jsonify(msg='User successfully created', user=current_user), 200
         except AssertionError as exception_message:
             return jsonify(msg='Error: {}. '.format(exception_message)), 400
@@ -115,7 +116,8 @@ def account():
             current_user.image_file = picture_file
         current_user.username = form.username.data
         current_user.email = form.email.data
-        db.session.commit()
+        session.commit()
+        session.close()
         flash('Your account has been updated!', 'success')
         return redirect(url_for('account'))
     elif request.method == 'GET':
@@ -138,6 +140,7 @@ def create_post():
         post.user_id = current_user.id
         session.add(post)
         session.commit()
+        session.close()
         flash('Your post has been created!', 'success')
         return redirect(url_for('user_posts', username=current_user.username))
     return render_template('new_post.html', title='New Post',
@@ -162,6 +165,7 @@ def update_post(post_id):
         post.content = form.content.data
         session.update(post)
         session.commit()
+        session.close()
         flash('Your post has been updated!', 'success')
         return redirect(url_for('post', post_id=post.id))
     elif request.method == 'GET':
@@ -177,8 +181,9 @@ def delete_post(post_id):
     post = session.query(UserTests).filter(UserTests.id == post_id).one()
     if post.user != current_user:
         abort(403)
-    db.session.delete(post)
-    db.session.commit()
+    session.delete(post)
+    session.commit()
+    session.close()
     flash('Your post has been deleted!', 'success')
     return redirect(url_for('home'))
 
@@ -236,7 +241,8 @@ def reset_token(token):
     if form.validate_on_submit():
         hashed_password = generate_password_hash(form.password.data).decode('utf-8')
         user.password = hashed_password
-        db.session.commit()
+        session.commit()
+        session.close()
         flash('Your password has been updated! You are now able to log in', 'success')
         return redirect(url_for('login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
