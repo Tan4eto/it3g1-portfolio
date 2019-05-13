@@ -7,7 +7,7 @@
 3. To build the app run setup.py
 4. To run the app use runserver.py
 
-# For developers
+## For developers
 
 * Test suit and documentation are under test and doc subdirectories, respectfuly.
 * Make sure you're working commiting fixes on the development branch
