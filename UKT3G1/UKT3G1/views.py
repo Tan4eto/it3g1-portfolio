@@ -10,7 +10,7 @@ from UKT3G1 import app, db, mail
 from UKT3G1.forms import RegistrationForm, LoginForm, UserTest, UpdateAccountForm, ResetPasswordForm, RequestResetForm
 from UKT3G1.models import User, UserTests, Base
 from flask_login import login_user, current_user, logout_user, login_required, login_manager
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, update
 from sqlalchemy.orm import sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
 import jsonify
@@ -163,16 +163,16 @@ def update_post(post_id):
     if form.validate_on_submit():
         post.title = form.title.data
         post.content = form.content.data
-        session.update(post)
+        #session.update(post)
         session.commit()
-        session.close()
+        #session.close()
         flash('Your post has been updated!', 'success')
         return redirect(url_for('post', post_id=post.id))
     elif request.method == 'GET':
         form.title.data = post.title
         form.content.data = post.content
-    return render_template('new_post.html', title='Update Post',
-                           form=form, legend='Update Post')
+    return render_template('update_post.html', title='Update Post',
+                           form=form, legend='Update Post', post=post)
 
 
 @app.route("/post/<int:post_id>/delete", methods=['POST'])
@@ -185,7 +185,7 @@ def delete_post(post_id):
     session.commit()
     session.close()
     flash('Your post has been deleted!', 'success')
-    return redirect(url_for('home'))
+    return redirect(url_for('user_posts', username=current_user.username))
 
 
 @app.route("/user/<string:username>")
