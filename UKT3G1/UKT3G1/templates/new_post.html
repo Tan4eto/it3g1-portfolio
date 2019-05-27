@@ -32,12 +32,13 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.content(class="form-control form-control-lg") }}
+                    {{ form.content(class="form-control form-control-lg",rows="5") }}
                 {% endif %}
             </div>
         </fieldset>
         <div class="form-group">
-            {{ form.submit(class="btn btn-outline-info") }}
+            {{ form.submit(class="btn btn-success") }}
+            <a href="../" class="btn btn-outline-default">Cancel</a>
         </div>
     </form>
 </div>
